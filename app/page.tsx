@@ -3,6 +3,7 @@
 import { useEffect, useState, useRef } from "react";
 import { Mail, MessageCircle } from "lucide-react";
 import { FaGithub, FaLinkedin, FaTwitter } from "react-icons/fa";
+import BlogModal from "../components/BlogModal";
 
 // Hook for scroll fade-in animation
 function useReveal() {
@@ -39,8 +40,8 @@ function useReveal() {
   return { ref, isVisible };
 }
 
-// Global section IDs for Scroll Spy
-const SECTIONS = ["about", "ability", "works", "contact"];
+// Global section IDs for Scroll Spy (Order matching DOM)
+const SECTIONS = ["about", "ability", "works", "blog", "contact"];
 
 function useScrollSpy(ids: string[]) {
   const [activeId, setActiveId] = useState("");
@@ -82,11 +83,30 @@ export default function Home() {
   const aboutReveal = useReveal();
   const abilityReveal = useReveal();
   const worksReveal = useReveal();
+  const blogReveal = useReveal();
   const contactReveal = useReveal();
 
   const activeSection = useScrollSpy(SECTIONS);
 
+  const [posts, setPosts] = useState<any[]>([]);
+  const [showAllBlogs, setShowAllBlogs] = useState(false);
+  const [isModalOpen, setIsModalOpen] = useState(false);
+  const [selectedSlug, setSelectedSlug] = useState<string | null>(null);
+
   useEffect(() => {
+    const fetchPosts = async () => {
+      try {
+        const res = await fetch('/api/blog');
+        if (res.ok) {
+          const data = await res.json();
+          setPosts(data);
+        }
+      } catch (err) {
+        console.error("Failed to fetch posts:", err);
+      }
+    };
+    fetchPosts();
+
     const handleScroll = () => {
       setScrolled(window.scrollY > 20);
     };
@@ -122,6 +142,10 @@ export default function Home() {
             <a href="#works" className={`transition-colors relative pb-1 ${activeSection === 'works' ? 'text-white' : 'text-gray-400 hover:text-white'}`}>
               Works
               {activeSection === 'works' && <span className="absolute bottom-0 left-0 right-0 h-0.5 bg-cyan-500 rounded-full animate-in fade-in zoom-in w-full"></span>}
+            </a>
+            <a href="#blog" className={`transition-colors relative pb-1 ${activeSection === 'blog' ? 'text-white' : 'text-gray-400 hover:text-white'}`}>
+              Blog
+              {activeSection === 'blog' && <span className="absolute bottom-0 left-0 right-0 h-0.5 bg-yellow-500 rounded-full animate-in fade-in zoom-in w-full"></span>}
             </a>
             <a href="#contact" className={`transition-colors relative pb-1 ${activeSection === 'contact' ? 'text-white' : 'text-gray-400 hover:text-white'}`}>
               Contact
@@ -357,6 +381,75 @@ export default function Home() {
           </div>
         </section>
 
+        {/* --- Blog Section --- */}
+        <section id="blog" className="py-24 md:py-32 px-6 max-w-4xl mx-auto relative scroll-mt-20">
+          <div ref={blogReveal.ref} className={`transition-all duration-1000 ease-out transform delay-100 opacity-0 translate-y-16 max-md:opacity-100 max-md:translate-y-0 ${blogReveal.isVisible ? '!opacity-100 !translate-y-0' : ''}`}>
+            <div className="text-center mb-16 md:mb-24 relative">
+              <h2 className="text-4xl md:text-5xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-white to-gray-400 mb-4">Blog</h2>
+              <p className="text-yellow-500 font-medium tracking-widest text-sm uppercase">思考输出</p>
+              
+              <a href="/admin" className="absolute top-0 right-0 md:top-auto md:bottom-2 text-gray-500 hover:text-white transition-colors flex items-center gap-1.5 px-3 py-1 rounded-full border border-white/5 bg-white/5 text-xs font-medium tracking-widest" title="进入管理后台">
+                🛡️ ADMIN
+              </a>
+            </div>
+
+            <div className="flex flex-col gap-6">
+              {posts.length > 0 ? (showAllBlogs ? posts : posts.slice(0, 3)).map(post => (
+                <div key={post.id} onClick={() => { setSelectedSlug(post.slug); setIsModalOpen(true); }} className="group flex flex-col md:flex-row gap-6 p-8 rounded-3xl bg-white/5 border border-white/10 hover:bg-white/10 hover:border-yellow-500/30 transition-all duration-500 hover:-translate-y-2 hover:shadow-[0_20px_40px_-15px_rgba(234,179,8,0.2)] relative overflow-hidden cursor-pointer">
+                  <div className="absolute left-0 top-0 bottom-0 w-1.5 bg-gradient-to-b from-yellow-400 to-orange-500 opacity-0 group-hover:opacity-100 transition-opacity duration-500"></div>
+                  
+                  {/* Date */}
+                  <div className="md:w-32 flex-shrink-0 pt-1">
+                    <span className="text-sm font-medium tracking-widest text-yellow-500/80 uppercase">{post.date}</span>
+                  </div>
+                  
+                  {/* Content */}
+                  <div className="flex flex-col flex-1">
+                    <h3 className="text-2xl font-bold text-white mb-3 group-hover:text-yellow-400 transition-colors">
+                      {post.title}
+                    </h3>
+                    
+                    <p className="text-gray-400 font-light mb-6 leading-relaxed line-clamp-3 md:line-clamp-2">
+                      {post.summary}
+                    </p>
+                    
+                    <div className="flex items-center justify-between mt-auto pt-2 border-t border-white/5 pt-4">
+                      <div className="flex flex-wrap gap-2">
+                        {post.tags && post.tags.map((tag: string) => (
+                          <span key={tag} className="text-xs font-semibold text-yellow-400/80 bg-yellow-400/10 px-3 py-1 rounded-full border border-yellow-500/20">{tag}</span>
+                        ))}
+                      </div>
+                      
+                      <span className="flex items-center text-sm font-medium text-white/50 group-hover:text-yellow-400 transition-colors pl-4 whitespace-nowrap">
+                        极客阅览 <span className="ml-1.5 transform group-hover:translate-x-1.5 transition-transform duration-300">→</span>
+                      </span>
+                    </div>
+                  </div>
+                </div>
+              )) : (
+                <div className="text-center text-gray-500 py-10">正在加载宇宙信号...</div>
+              )}
+            </div>
+            
+            {!showAllBlogs && posts.length > 3 && (
+              <div className="mt-16 text-center">
+                <button 
+                  onClick={() => setShowAllBlogs(true)}
+                  className="inline-flex items-center gap-3 px-6 py-3 rounded-full text-sm font-medium text-white/70 hover:text-white bg-white/5 hover:bg-white/10 border border-white/10 transition-all hover:-translate-y-1 hover:shadow-[0_10px_20px_rgba(255,255,255,0.05)]"
+                >
+                  展开所有 {posts.length} 篇文章 <span className="animate-bounce">↓</span>
+                </button>
+              </div>
+            )}
+
+            {showAllBlogs && (
+              <div className="mt-16 text-center text-xs font-mono text-gray-600 tracking-widest uppercase">
+                - END OF LIST -
+              </div>
+            )}
+          </div>
+        </section>
+
         {/* --- Contact Section --- */}
         <section id="contact" className="py-24 md:py-32 px-6 max-w-4xl mx-auto relative scroll-mt-20">
           <div ref={contactReveal.ref} className={`transition-all duration-1000 ease-out transform delay-100 opacity-0 translate-y-16 max-md:opacity-100 max-md:translate-y-0 ${contactReveal.isVisible ? '!opacity-100 !translate-y-0' : ''}`}>
@@ -403,12 +496,14 @@ export default function Home() {
       {/* --- Footer --- */}
       <footer className="border-t border-white/10 bg-[#06060a] relative z-10 py-6 md:py-8">
         <div className="max-w-6xl mx-auto px-6 flex flex-col md:flex-row justify-between items-center gap-2 md:gap-4">
-          <p className="text-gray-600 text-xs md:text-sm font-light">© 2025 Mr Si · All Rights Reserved</p>
+          <p className="text-gray-600 text-xs md:text-sm font-light">© 2026 Mr Si · All Rights Reserved</p>
           <p className="text-gray-600 text-xs md:text-sm font-light">
             Designed with <span className="text-red-500/80 mx-1">❤️</span>
           </p>
         </div>
       </footer>
+
+      <BlogModal slug={selectedSlug} isOpen={isModalOpen} onClose={() => setIsModalOpen(false)} />
     </div>
   );
 }
