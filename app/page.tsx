@@ -183,9 +183,12 @@ export default function Home() {
             </span>
           </div>
 
-          <div className="flex flex-col sm:flex-row gap-6 items-center justify-center w-full max-w-md mx-auto">
+          <div className="flex flex-col sm:flex-row gap-6 items-center justify-center w-full max-w-2xl mx-auto">
             <a href="#about" className="relative group px-8 py-4 w-full sm:w-auto rounded-full bg-white text-black font-semibold tracking-wide transition-all duration-300 hover:scale-105 hover:bg-gray-100 shadow-[0_0_20px_rgba(255,255,255,0.2)] hover:shadow-[0_0_40px_rgba(255,255,255,0.4)] border border-transparent overflow-hidden text-center">
               <span className="relative z-10">了解我</span>
+            </a>
+            <a href="/lab" className="relative group px-8 py-4 w-full sm:w-auto rounded-full bg-indigo-500/20 text-indigo-100 font-semibold tracking-wide transition-all duration-300 hover:scale-105 hover:bg-indigo-500/30 hover:shadow-[0_0_30px_rgba(99,102,241,0.4)] border border-indigo-400/30 hover:border-indigo-400/60 backdrop-blur-md overflow-hidden text-center">
+              <span className="relative z-10">🧪 AI Lab</span>
             </a>
             <a href="#contact" className="relative group px-8 py-4 w-full sm:w-auto rounded-full bg-black/40 text-white font-semibold tracking-wide transition-all duration-300 hover:scale-105 hover:bg-white/10 hover:shadow-[0_0_30px_rgba(168,85,247,0.3)] border border-white/30 hover:border-purple-400/50 backdrop-blur-md overflow-hidden text-center">
               <span className="relative z-10">联系我</span>
