@@ -53,6 +53,7 @@ export async function savePosts(posts: any[]): Promise<void> {
   try {
     const result = await put(BLOB_KEY, jsonStr, {
       access: "public",
+      allowOverwrite: true,
       contentType: "application/json",
     });
     console.log(`[Blob] Saved ${posts.length} posts to blob, url: ${result.url}`);
