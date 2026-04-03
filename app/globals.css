@@ -342,6 +342,38 @@ body {
   border-radius: 0 var(--lab-radius-sm) var(--lab-radius-sm) 0;
   color: var(--lab-text-muted);
 }
+/* Markdown 表格样式 */
+.prose table,
+.lab-markdown table,
+article table {
+  border-collapse: collapse;
+  width: 100%;
+  margin: 1em 0;
+}
+
+.prose table th,
+.prose table td,
+.lab-markdown table th,
+.lab-markdown table td,
+article table th,
+article table td {
+  border: 1px solid rgba(255, 255, 255, 0.15);
+  padding: 0.6em 1em;
+  text-align: left;
+}
+
+.prose table th,
+.lab-markdown table th,
+article table th {
+  background: rgba(255, 255, 255, 0.08);
+  font-weight: 600;
+}
+
+.prose table tr:nth-child(even),
+.lab-markdown table tr:nth-child(even),
+article table tr:nth-child(even) {
+  background: rgba(255, 255, 255, 0.03);
+}
 
 /* 复制按钮 */
 .lab-copy-btn {
