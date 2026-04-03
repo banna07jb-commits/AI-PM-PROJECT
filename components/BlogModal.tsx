@@ -2,6 +2,9 @@
 
 import { useState, useEffect } from "react";
 import ReactMarkdown from "react-markdown";
+import remarkGfm from "remark-gfm";
+import rehypeHighlight from "rehype-highlight";
+import "highlight.js/styles/github-dark.css";
 
 interface Comment {
   id: string;
@@ -194,7 +197,10 @@ export default function BlogModal({ slug, isOpen, onClose }: BlogModalProps) {
 
                {/* Markdown Body */}
                <article className="prose prose-invert prose-lg md:prose-xl prose-p:text-gray-300 prose-p:leading-relaxed prose-p:font-light prose-headings:text-white prose-headings:font-bold prose-a:text-yellow-500 hover:prose-a:text-yellow-400 prose-strong:text-white prose-strong:font-semibold prose-img:rounded-3xl prose-img:shadow-2xl prose-img:border prose-img:border-white/10 max-w-none">
-                 <ReactMarkdown>
+                <ReactMarkdown
+                  remarkPlugins={[remarkGfm]}
+                  rehypePlugins={[rehypeHighlight]}
+                >
                    {post.content}
                  </ReactMarkdown>
                </article>

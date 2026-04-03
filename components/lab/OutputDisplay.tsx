@@ -2,6 +2,9 @@
 
 import React, { useState } from "react";
 import ReactMarkdown from "react-markdown";
+import remarkGfm from "remark-gfm";
+import rehypeHighlight from "rehype-highlight";
+import "highlight.js/styles/github-dark.css";
 
 interface OutputDisplayProps {
   content: string | null;
@@ -51,7 +54,12 @@ export default function OutputDisplay({ content, isLoading }: OutputDisplayProps
     <div className="lab-output-area">
       <div className="lab-output-inner">
         <div className="lab-markdown">
-          <ReactMarkdown>{content}</ReactMarkdown>
+          <ReactMarkdown
+            remarkPlugins={[remarkGfm]}
+            rehypePlugins={[rehypeHighlight]}
+          >
+            {content}
+          </ReactMarkdown>
         </div>
         <div className="flex justify-end mt-4">
           <button
