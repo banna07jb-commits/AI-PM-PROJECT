@@ -21,10 +21,10 @@ export async function getPosts(): Promise<any[]> {
   try {
     const headResult = await head(BLOB_KEY);
     if (headResult) {
-      const res = await fetch(`${headResult.url}?t=${Date.now()}`, { cache: 'no-store' });
+      const res = await fetch(headResult.url, { cache: 'no-store' });
       if (res.ok) {
         const text = await res.text();
-        console.log("[Blob] Loaded posts from blob (cache-busted)");
+        console.log("[Blob] Loaded posts from blob");
         return JSON.parse(text);
       }
     }
@@ -55,6 +55,7 @@ export async function savePosts(posts: any[]): Promise<void> {
       access: "public",
       allowOverwrite: true,
       contentType: "application/json",
+      cacheControlMaxAge: 0,
     });
     console.log(`[Blob] Saved ${posts.length} posts to blob, url: ${result.url}`);
   } catch (e: any) {
