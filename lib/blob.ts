@@ -21,10 +21,10 @@ export async function getPosts(): Promise<any[]> {
   try {
     const headResult = await head(BLOB_KEY);
     if (headResult) {
-      const res = await fetch(headResult.url);
+      const res = await fetch(`${headResult.url}?t=${Date.now()}`, { cache: 'no-store' });
       if (res.ok) {
         const text = await res.text();
-        console.log("[Blob] Loaded posts from blob");
+        console.log("[Blob] Loaded posts from blob (cache-busted)");
         return JSON.parse(text);
       }
     }
