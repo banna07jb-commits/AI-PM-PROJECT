@@ -1,8 +1,5 @@
 import { NextResponse } from 'next/server';
-import fs from 'fs/promises';
-import path from 'path';
-
-const dataFilePath = path.join(process.cwd(), 'data/posts.json');
+import { getPosts, savePosts } from "@/lib/blob";
 
 type Params = { params: Promise<{ slug: string }> | { slug: string } };
 
@@ -12,8 +9,7 @@ export async function POST(request: Request, context: Params) {
     const { slug } = resolvedParams;
     const body = await request.json();
     
-    const fileContents = await fs.readFile(dataFilePath, 'utf8');
-    const posts = JSON.parse(fileContents);
+    const posts = await getPosts();
     
     const postIndex = posts.findIndex((p: any) => p.slug === slug);
     if (postIndex === -1) {
@@ -44,7 +40,7 @@ export async function POST(request: Request, context: Params) {
 
     // Save back to file
     posts[postIndex] = post;
-    await fs.writeFile(dataFilePath, JSON.stringify(posts, null, 2), 'utf8');
+    await savePosts(posts);
 
     return NextResponse.json({ success: true, post });
   } catch (error) {

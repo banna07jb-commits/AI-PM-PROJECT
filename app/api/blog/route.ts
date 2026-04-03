@@ -1,16 +1,12 @@
 import { NextResponse } from 'next/server';
-import fs from 'fs/promises';
-import path from 'path';
-
-const dataFilePath = path.join(process.cwd(), 'data/posts.json');
+import { getPosts, savePosts } from "@/lib/blob";
 
 export async function GET(request: Request) {
   try {
     const { searchParams } = new URL(request.url);
     const fetchAll = searchParams.get('all') === '1';
 
-    const fileContents = await fs.readFile(dataFilePath, 'utf8');
-    let posts = JSON.parse(fileContents);
+    let posts = await getPosts();
     
     // Default security filter: non-admins only see public posts
     if (!fetchAll) {
@@ -33,8 +29,7 @@ export async function POST(request: Request) {
       return NextResponse.json({ error: 'Missing required fields' }, { status: 400 });
     }
 
-    const fileContents = await fs.readFile(dataFilePath, 'utf8');
-    let posts = JSON.parse(fileContents);
+    let posts = await getPosts();
     
     // Check if slug already exists
     if (posts.some((p: any) => p.slug === newPost.slug)) {
@@ -59,7 +54,7 @@ export async function POST(request: Request) {
     // Add to top of array (newest first)
     posts = [newPost, ...posts];
     
-    await fs.writeFile(dataFilePath, JSON.stringify(posts, null, 2), 'utf8');
+    await savePosts(posts);
     
     return NextResponse.json(newPost, { status: 201 });
   } catch (error) {
@@ -76,8 +71,7 @@ export async function PUT(request: Request) {
       return NextResponse.json({ error: 'Missing slug' }, { status: 400 });
     }
 
-    const fileContents = await fs.readFile(dataFilePath, 'utf8');
-    let posts = JSON.parse(fileContents);
+    let posts = await getPosts();
     
     const postIndex = posts.findIndex((p: any) => p.slug === updatedData.slug);
     if (postIndex === -1) {
@@ -95,7 +89,7 @@ export async function PUT(request: Request) {
       isPrivate: updatedData.isPrivate !== undefined ? updatedData.isPrivate : existingPost.isPrivate,
     };
     
-    await fs.writeFile(dataFilePath, JSON.stringify(posts, null, 2), 'utf8');
+    await savePosts(posts);
     
     return NextResponse.json(posts[postIndex], { status: 200 });
   } catch (error) {

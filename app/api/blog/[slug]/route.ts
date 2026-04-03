@@ -1,8 +1,5 @@
 import { NextResponse } from 'next/server';
-import fs from 'fs/promises';
-import path from 'path';
-
-const dataFilePath = path.join(process.cwd(), 'data/posts.json');
+import { getPosts, savePosts } from "@/lib/blob";
 
 // Next.js 14.2+ dynamic API route signature
 type Params = { params: Promise<{ slug: string }> | { slug: string } };
@@ -12,8 +9,7 @@ export async function GET(request: Request, context: Params) {
     const resolvedParams = await Promise.resolve(context.params);
     const { slug } = resolvedParams;
 
-    const fileContents = await fs.readFile(dataFilePath, 'utf8');
-    const posts = JSON.parse(fileContents);
+    const posts = await getPosts();
     
     const post = posts.find((p: any) => p.slug === slug);
     if (!post) {
@@ -32,8 +28,7 @@ export async function DELETE(request: Request, context: Params) {
     const resolvedParams = await Promise.resolve(context.params);
     const { slug } = resolvedParams;
 
-    const fileContents = await fs.readFile(dataFilePath, 'utf8');
-    let posts = JSON.parse(fileContents);
+    let posts = await getPosts();
     
     const initialLength = posts.length;
     posts = posts.filter((p: any) => p.slug !== slug);
@@ -42,7 +37,7 @@ export async function DELETE(request: Request, context: Params) {
       return NextResponse.json({ error: 'Post not found' }, { status: 404 });
     }
     
-    await fs.writeFile(dataFilePath, JSON.stringify(posts, null, 2), 'utf8');
+    await savePosts(posts);
     
     return NextResponse.json({ success: true });
   } catch (error) {
